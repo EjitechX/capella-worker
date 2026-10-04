@@ -1,0 +1,242 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Capella — Activate Account</title>
+<script src="https://js.paystack.co/v1/inline.js"></script>
+<style>
+  :root{
+    --primary:#0B5CFF; --secondary:#0E2A6B; --accent:#F5B301; --neutral:#F8FAFF;
+    --bg:#F4F7FC; --card:#FFFFFF; --line:#E2E8F2;
+    --text:#14204A; --muted:#68738D; --green:#16A34A; --danger:#DC2626;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    max-width:420px; margin-left:auto; margin-right:auto; min-height:100vh;
+  }
+  svg.ic{width:1em; height:1em; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; vertical-align:-0.15em;}
+
+  header.topbar{background:var(--secondary); color:#fff; padding:18px 18px 22px; border-radius:0 0 20px 20px; text-align:center;}
+  .logo-mark{width:44px; height:44px; border-radius:12px; margin:0 auto 12px; background:linear-gradient(135deg,var(--primary),var(--accent)); display:flex; align-items:center; justify-content:center;}
+  header.topbar h1{font-size:18px; margin:0 0 4px; font-weight:800;}
+  header.topbar p{margin:0; font-size:12.5px; color:#B9C4E5;}
+
+  main{padding:18px 16px 40px;}
+
+  .fee-card{background:var(--card); border:1px solid var(--line); border-radius:16px; padding:20px; text-align:center; margin-bottom:16px;}
+  .fee-card .role-tag{font-size:11px; font-weight:700; color:var(--primary); background:#EEF3FF; padding:4px 12px; border-radius:20px; display:inline-block; margin-bottom:12px;}
+  .fee-card .amount{font-size:32px; font-weight:800; color:var(--secondary);}
+  .fee-card .sub{font-size:12.5px; color:var(--muted); margin-top:4px;}
+
+  .benefits{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:16px;}
+  .benefits h2{font-size:13.5px; margin:0 0 12px; font-weight:700;}
+  .benefit-row{display:flex; align-items:flex-start; gap:10px; margin-bottom:11px; font-size:12.5px; line-height:1.4;}
+  .benefit-row:last-child{margin-bottom:0;}
+  .check-ic{width:18px; height:18px; border-radius:50%; background:#DCFCE7; color:var(--green); display:flex; align-items:center; justify-content:center; flex-shrink:0; margin-top:1px;}
+  .check-ic svg{width:11px; height:11px; stroke-width:3;}
+
+  .fine-print{font-size:11px; color:var(--muted); line-height:1.5; text-align:center; margin-bottom:18px; padding:0 6px;}
+
+  .btn{
+    width:100%; background:var(--primary); color:#fff; border:none; padding:14px; border-radius:12px;
+    font-weight:700; font-size:14.5px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .btn:disabled{background:var(--line); color:var(--muted); cursor:default;}
+
+  .state-box{text-align:center; padding:40px 16px;}
+  .state-icon{width:64px; height:64px; border-radius:50%; margin:0 auto 16px; display:flex; align-items:center; justify-content:center;}
+  .state-icon.success{background:#DCFCE7; color:var(--green);}
+  .state-icon.pending{background:#FEF3C7; color:#92400E;}
+  .state-icon.error{background:rgba(220,38,38,.1); color:var(--danger);}
+  .state-icon svg{width:32px; height:32px;}
+  .state-box h2{font-size:17px; margin:0 0 6px; font-weight:800;}
+  .state-box p{font-size:13px; color:var(--muted); margin:0 0 20px; line-height:1.5;}
+
+  .spinner{width:16px; height:16px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .hidden{display:none;}
+</style>
+<link rel="stylesheet" href="assets/capella-theme.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+<defs>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M18 6 6 18M6 6l12 12"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+</defs>
+</svg>
+
+<div id="app" class="hidden">
+  <header class="topbar">
+    <div class="logo-mark"><img class="capella-logo-img" src="assets/capella-logo-icon.png" alt="Capella"></div>
+    <h1>Activate Your Account</h1>
+    <p>One-time activation to unlock the platform</p>
+  </header>
+
+  <main id="mainContent">
+    <!-- populated by JS -->
+  </main>
+</div>
+
+<script>
+  // ── Your Worker's URL and Paystack PUBLIC key (never the secret key —
+  // public keys are safe and meant to be used in client-side code). ──
+  const API_BASE = "https://capella-api-5c6c.drthankgod08.workers.dev";
+  const PAYSTACK_PUBLIC_KEY = "pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"; // <-- put your real Paystack PUBLIC key here
+
+  const token = localStorage.getItem("capella_token");
+  if (!token) {
+    window.location.href = "capella-login.html";
+  }
+
+  let currentUser = null; // { uid, email, ... } — populated from /auth/me
+  let ACTIVATION_FEE = 5000; // fallback only; overwritten by /public/settings below
+
+  async function apiFetch(path, options = {}) {
+    const res = await fetch(API_BASE + path, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: "Bearer " + localStorage.getItem("capella_token"),
+        ...(options.headers || {}),
+      },
+    });
+    // Silent session renewal — see auth.js on the Worker side.
+    const renewed = res.headers.get("X-Renewed-Token");
+    if (renewed) localStorage.setItem("capella_token", renewed);
+    const data = await res.json().catch(() => ({}));
+    return { ok: res.ok, status: res.status, data };
+  }
+
+  async function init() {
+    // Fee shown here always matches what the server will actually
+    // charge and verify — never a hardcoded guess.
+    try {
+      const feeRes = await fetch(API_BASE + "/public/settings");
+      const feeData = await feeRes.json();
+      if (feeData.registrationFee) ACTIVATION_FEE = feeData.registrationFee;
+    } catch (e) { /* fall back to the default above */ }
+
+    const me = await apiFetch("/auth/me");
+    if (!me.ok) {
+      // Token invalid/expired — back to login.
+      localStorage.removeItem("capella_token");
+      localStorage.removeItem("capella_uid");
+      window.location.href = "capella-login.html";
+      return;
+    }
+
+    currentUser = me.data;
+    document.getElementById("app").classList.remove("hidden");
+    renderState(currentUser);
+  }
+
+  function renderState(userData) {
+    const main = document.getElementById("mainContent");
+    if (userData.accountActivated) {
+      main.innerHTML = `
+        <div class="state-box">
+          <div class="state-icon success"><svg class="ic"><use href="#i-check"/></svg></div>
+          <h2>You're activated</h2>
+          <p>Your account is active. You can use both Worker and Business features without paying another activation fee.</p>
+          <button class="btn" onclick="location.href='capella-worker.html'">Go to Worker Dashboard</button>
+          <button class="btn" style="margin-top:10px;background:var(--secondary);" onclick="location.href='capella-business.html'">Go to Business Dashboard</button>
+        </div>
+      `;
+      return;
+    }
+
+    main.innerHTML = `
+      <div class="fee-card">
+        <div class="role-tag">One-time account activation</div>
+        <div class="amount">₦${ACTIVATION_FEE.toLocaleString()}.00</div>
+        <div class="sub">Pay once. Use both Worker and Business modes.</div>
+      </div>
+      <div class="benefits">
+        <h2>What activation unlocks</h2>
+        <div class="benefit-row"><div class="check-ic"><svg class="ic"><use href="#i-check"/></svg></div>Access to genuine worker tasks and earnings</div>
+        <div class="benefit-row"><div class="check-ic"><svg class="ic"><use href="#i-check"/></svg></div>Ability to create and fund business campaigns</div>
+        <div class="benefit-row"><div class="check-ic"><svg class="ic"><use href="#i-check"/></svg></div>Wallet, referrals, affiliate and marketplace features</div>
+      </div>
+      <p class="fine-print"><svg class="ic"><use href="#i-lock"/></svg>Secure payment via Paystack. This is a one-time account activation payment.</p>
+      <button class="btn" id="payBtn" onclick="payAndActivate()">Pay ₦${ACTIVATION_FEE.toLocaleString()} to Activate</button>
+    `;
+  }
+
+  window.payAndActivate = function () {
+    const payBtn = document.getElementById("payBtn");
+    payBtn.disabled = true;
+    payBtn.innerHTML = '<span class="spinner"></span> Opening secure checkout…';
+
+    const reference = "CAP-ACT-" + currentUser.uid.slice(0, 6) + "-" + Date.now();
+
+    const handler = PaystackPop.setup({
+      key: PAYSTACK_PUBLIC_KEY,
+      email: currentUser.email || (currentUser.phone + "@capella.placeholder"),
+      amount: ACTIVATION_FEE * 100, // Paystack expects kobo
+      currency: "NGN",
+      ref: reference,
+      metadata: { userId: currentUser.uid, purpose: "account_activation" },
+      callback: function (response) {
+        // IMPORTANT: this callback only means Paystack's popup completed —
+        // it is NOT proof of payment. Real confirmation happens server-side
+        // in /activations/verify, which re-checks with Paystack directly.
+        showVerifying();
+        apiFetch("/activations/verify", {
+          method: "POST",
+          body: JSON.stringify({ reference: response.reference }),
+        }).then(({ ok, data }) => {
+          if (ok && data.success) {
+            currentUser.accountActivated = true;
+            renderState(currentUser);
+          } else {
+            showError(data.message || "Verification failed.");
+          }
+        }).catch((err) => {
+          showError("Could not verify payment. Contact support with reference: " + reference);
+        });
+      },
+      onClose: function () {
+        payBtn.disabled = false;
+        payBtn.innerHTML = `Pay ₦${ACTIVATION_FEE.toLocaleString()} to Activate`;
+      }
+    });
+    handler.openIframe();
+  };
+
+  function showVerifying() {
+    document.getElementById("mainContent").innerHTML = `
+      <div class="state-box">
+        <div class="state-icon pending"><svg class="ic"><use href="#i-clock"/></svg></div>
+        <h2>Verifying payment…</h2>
+        <p>This takes a few seconds. Don't close this page.</p>
+      </div>
+    `;
+  }
+
+  function showError(message) {
+    document.getElementById("mainContent").innerHTML = `
+      <div class="state-box">
+        <div class="state-icon error"><svg class="ic"><use href="#i-x"/></svg></div>
+        <h2>Couldn't verify payment</h2>
+        <p>${escapeHtml(message)}</p>
+        <button class="btn" onclick="location.reload()">Try Again</button>
+      </div>
+    `;
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, s => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[s]));
+  }
+
+  if (token) init();
+</script>
+
+</body>
+</html>

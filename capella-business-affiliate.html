@@ -1,0 +1,296 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Capella — Affiliate Listings</title>
+<style>
+  :root{
+    --primary:#0B5CFF; --secondary:#0E2A6B; --accent:#F5B301; --neutral:#F8FAFF;
+    --bg:#F8FAFF; --card:#FFFFFF; --line:#E6EAF2;
+    --text:#1B2559; --muted:#6B7590; --green:#16A34A; --danger:#DC2626; --radius:14px;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,-apple-system,sans-serif;}
+  button, input, select, textarea{font-family:inherit;}
+  svg.ic{width:1em; height:1em; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; vertical-align:-0.15em;}
+
+  .shell{display:flex; min-height:100vh;}
+  .sidebar{width:240px; background:var(--secondary); color:#fff; padding:20px 14px; flex-shrink:0; display:flex; flex-direction:column;}
+  .logo{display:flex; align-items:center; gap:10px; padding:0 8px 22px 8px;}
+  .nav-list{list-style:none; display:flex; flex-direction:column; gap:2px;}
+  .nav-item{display:flex; align-items:center; gap:12px; padding:11px 14px; border-radius:10px; color:#C4CDE8; font-size:14px; font-weight:500; text-decoration:none;}
+  .nav-item.active{background:var(--primary); color:#fff;}
+  .nav-item svg{width:16px;height:16px;flex-shrink:0;}
+
+  .main{flex:1; min-width:0;}
+  .topbar{background:var(--secondary); color:#fff; padding:16px 26px;}
+  .topbar h1{font-size:18px; margin:0; font-weight:700;}
+  .topbar p{font-size:12.5px; color:#B9C4E5; margin-top:2px;}
+
+  .content{padding:22px 26px 60px;}
+  .grid2{display:grid; grid-template-columns:1fr 1.4fr; gap:20px;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:var(--radius); padding:18px 20px; margin-bottom:18px;}
+  .card h2{font-size:15px; font-weight:700; margin:0 0 12px;}
+
+  .field{margin-bottom:13px;}
+  .field label{display:block; font-size:12px; font-weight:700; margin-bottom:6px;}
+  .field input, .field select, .field textarea{width:100%; padding:10px 11px; border:1px solid var(--line); border-radius:9px; font-size:13px; box-sizing:border-box;}
+  .field textarea{min-height:70px; resize:vertical;}
+  .resolve-status{font-size:11.5px; margin-top:6px; min-height:15px;}
+  .resolve-status.ok{color:var(--green); font-weight:700;}
+  .resolve-status.err{color:var(--danger);}
+
+  .price-preview{background:var(--neutral); border:1px solid var(--line); border-radius:10px; padding:12px; font-size:12.5px; margin:6px 0 14px;}
+  .price-preview .row{display:flex; justify-content:space-between; padding:3px 0;}
+  .price-preview .row.total{font-weight:800; border-top:1px solid var(--line); margin-top:4px; padding-top:8px; color:var(--secondary);}
+
+  .btn{background:var(--primary); color:#fff; border:none; padding:11px 16px; border-radius:9px; font-weight:700; font-size:13px; cursor:pointer; width:100%;}
+  .btn.small{width:auto; padding:7px 12px; font-size:11.5px;}
+  .btn.outline{background:#fff; color:var(--danger); border:1px solid var(--danger);}
+  .btn:disabled{opacity:.5;}
+
+  .listing-row{border:1px solid var(--line); border-radius:12px; padding:13px 15px; margin-bottom:10px;}
+  .lr-top{display:flex; justify-content:space-between; align-items:flex-start; gap:10px;}
+  .lr-top h3{margin:0; font-size:14px; font-weight:700;}
+  .lr-meta{font-size:11.5px; color:var(--muted); margin-top:3px;}
+  .badge{font-size:10.5px; font-weight:700; padding:3px 10px; border-radius:20px;}
+  .badge.active{background:rgba(22,163,74,.12); color:var(--green);}
+  .badge.deleted{background:var(--neutral); color:var(--muted); border:1px solid var(--line);}
+  .empty{color:var(--muted); font-size:13px; text-align:center; padding:24px 0;}
+  .msg{font-size:12.5px; margin-bottom:10px;}
+  .msg.ok{color:var(--green);}
+  .msg.err{color:var(--danger);}
+  .hidden{display:none;}
+
+  @media(max-width:900px){ .sidebar{display:none;} .grid2{grid-template-columns:1fr;} .content{padding:16px;} }
+</style>
+<link rel="stylesheet" href="assets/capella-theme.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+<defs>
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 11.5 12 4l9 7.5"/><path d="M5.5 10v9a1 1 0 0 0 1 1H9a1 1 0 0 0 1-1v-4h4v4a1 1 0 0 0 1 1h2.5a1 1 0 0 0 1-1v-9"/></symbol>
+  <symbol id="i-rocket" viewBox="0 0 24 24"><path d="M12 2c3 2 5 6 4 12l-4 4-4-4c-1-6 1-10 4-12Z"/><circle cx="12" cy="9" r="1.6"/><path d="M8 15l-3 3M16 15l3 3M9 21l1-3M15 21l-1-3"/></symbol>
+  <symbol id="i-wallet" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="16.5" cy="14" r="1"/></symbol>
+  <symbol id="i-tag" viewBox="0 0 24 24"><path d="M20.5 12.5 12.4 20.6a2 2 0 0 1-2.8 0l-6.2-6.2a2 2 0 0 1 0-2.8L11.5 3.5H19a1.5 1.5 0 0 1 1.5 1.5v7.5Z"/><circle cx="15.5" cy="8.5" r="1.2"/></symbol>
+</defs>
+</svg>
+
+<div class="shell hidden" id="app">
+  <aside class="sidebar">
+    <div class="logo"><img class="capella-logo-full" src="assets/capella-logo.png" alt="Capella" style="width:150px;height:auto;"></div>
+    <ul class="nav-list">
+      <li><a class="nav-item" href="capella-business.html"><svg class="ic"><use href="#i-home"/></svg> Dashboard</a></li>
+      <li><a class="nav-item" href="capella-business.html"><svg class="ic"><use href="#i-rocket"/></svg> Campaigns</a></li>
+      <li><span class="nav-item active"><svg class="ic"><use href="#i-tag"/></svg> Affiliate Listings</span></li>
+      <li><a class="nav-item" href="capella-business.html"><svg class="ic"><use href="#i-wallet"/></svg> Wallet</a></li>
+    </ul>
+  </aside>
+
+  <div class="main">
+    <div class="topbar">
+      <h1>Affiliate Listings</h1>
+      <p>Products workers can promote for their own commission — paid straight to your bank the moment a sale happens.</p>
+    </div>
+
+    <div class="content">
+      <div class="grid2">
+        <div class="card">
+          <h2>Create Listing</h2>
+          <div class="field"><label>Product / Service Title</label><input type="text" id="f-title" placeholder="e.g. Premium Skincare Bundle"></div>
+          <div class="field"><label>Description</label><textarea id="f-desc" placeholder="What is it, who's it for"></textarea></div>
+          <div class="field"><label>Product Price (₦)</label><input type="number" id="f-amount" placeholder="e.g. 10000"></div>
+
+          <div class="field"><label>Payout Bank</label>
+            <select id="f-bank"><option value="">Loading banks…</option></select>
+          </div>
+          <div class="field"><label>Account Number</label>
+            <input type="text" id="f-account" maxlength="10" inputmode="numeric" placeholder="0123456789">
+            <div class="resolve-status" id="resolveStatus"></div>
+          </div>
+
+          <div class="price-preview" id="feePreview" style="display:none;"></div>
+
+          <div id="f-msg"></div>
+          <button class="btn" id="createBtn" onclick="createListing()">Create Listing</button>
+        </div>
+
+        <div class="card">
+          <h2>Your Listings</h2>
+          <div id="listingsList"><div class="empty">Loading…</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API_BASE = "https://capella-api-5c6c.drthankgod08.workers.dev";
+  let resolvedAccountName = null;
+  let resolveTimer = null;
+  let platformFeePct = 5;
+
+  async function apiFetch(path, options = {}) {
+    const res = await fetch(API_BASE + path, {
+      ...options,
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + localStorage.getItem("capella_token"), ...(options.headers || {}) },
+    });
+    const renewed = res.headers.get("X-Renewed-Token");
+    if (renewed) localStorage.setItem("capella_token", renewed);
+    const data = await res.json().catch(() => ({}));
+    return { ok: res.ok, status: res.status, data };
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, s => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[s]));
+  }
+
+  async function init() {
+    const token = localStorage.getItem("capella_token");
+    if (!token) { window.location.href = "capella-login.html"; return; }
+
+    const me = await apiFetch("/auth/me");
+    if (!me.ok) { window.location.href = "capella-login.html"; return; }
+
+    document.getElementById("app").classList.remove("hidden");
+
+    const settingsRes = await fetch(API_BASE + "/public/settings").then(r => r.json()).catch(() => ({}));
+    if (settingsRes.affiliatePlatformFeePct != null) platformFeePct = settingsRes.affiliatePlatformFeePct;
+
+    loadBanks();
+    loadListings();
+
+    document.getElementById("f-amount").addEventListener("input", updateFeePreview);
+  }
+
+  function updateFeePreview() {
+    const amt = Math.floor(Number(document.getElementById("f-amount").value)) || 0;
+    const box = document.getElementById("feePreview");
+    if (!amt) { box.style.display = "none"; return; }
+    const fee = Math.floor(amt * (platformFeePct / 100));
+    box.style.display = "block";
+    box.innerHTML = `
+      <div class="row"><span>Product price</span><span>₦${amt.toLocaleString()}</span></div>
+      <div class="row"><span>Capella fee (${platformFeePct}%)</span><span>−₦${fee.toLocaleString()}</span></div>
+      <div class="row total"><span>You receive per sale</span><span>₦${(amt - fee).toLocaleString()}</span></div>
+      <div style="color:var(--muted);margin-top:6px;">Workers add their own commission on top — customers see one combined price, and it never comes out of your share.</div>
+    `;
+  }
+
+  async function loadBanks() {
+    const sel = document.getElementById("f-bank");
+    const { ok, data } = await apiFetch("/banks");
+    if (!ok) { sel.innerHTML = '<option value="">Could not load banks</option>'; return; }
+    sel.innerHTML = '<option value="">Select your bank</option>' + (data.banks || []).map(b => `<option value="${b.code}">${escapeHtml(b.name)}</option>`).join("");
+  }
+
+  function scheduleResolve() {
+    clearTimeout(resolveTimer);
+    resolvedAccountName = null;
+    const statusEl = document.getElementById("resolveStatus");
+    const acct = document.getElementById("f-account").value.trim();
+    const bankCode = document.getElementById("f-bank").value;
+    if (acct.length !== 10 || !bankCode) { statusEl.textContent = ""; statusEl.className = "resolve-status"; return; }
+    statusEl.textContent = "Resolving…";
+    statusEl.className = "resolve-status";
+    resolveTimer = setTimeout(async () => {
+      const { ok, data } = await apiFetch("/banks/resolve", { method: "POST", body: JSON.stringify({ accountNumber: acct, bankCode }) });
+      if (ok && data.accountName) {
+        resolvedAccountName = data.accountName;
+        statusEl.textContent = "✓ " + data.accountName;
+        statusEl.className = "resolve-status ok";
+      } else {
+        statusEl.textContent = data.message || "Could not verify account.";
+        statusEl.className = "resolve-status err";
+      }
+    }, 600);
+  }
+  document.getElementById("f-account").addEventListener("input", scheduleResolve);
+  document.getElementById("f-bank").addEventListener("change", scheduleResolve);
+
+  window.createListing = async function () {
+    const msgEl = document.getElementById("f-msg");
+    msgEl.innerHTML = "";
+
+    const title = document.getElementById("f-title").value.trim();
+    const description = document.getElementById("f-desc").value.trim();
+    const productAmount = Math.floor(Number(document.getElementById("f-amount").value));
+    const bankCode = document.getElementById("f-bank").value;
+    const bankName = document.getElementById("f-bank").selectedOptions[0]?.textContent || "";
+    const accountNumber = document.getElementById("f-account").value.trim();
+
+    if (!title || !productAmount) { msgEl.innerHTML = '<div class="msg err">Enter a title and a valid price.</div>'; return; }
+    if (!bankCode || accountNumber.length !== 10) { msgEl.innerHTML = '<div class="msg err">Select a bank and enter a valid account number.</div>'; return; }
+    if (!resolvedAccountName) { msgEl.innerHTML = '<div class="msg err">We need to verify this account first — check the number.</div>'; return; }
+
+    const btn = document.getElementById("createBtn");
+    btn.disabled = true;
+    btn.textContent = "Creating…";
+
+    const { ok, data } = await apiFetch("/affiliate/listings", {
+      method: "POST",
+      body: JSON.stringify({ title, description, productAmount, bankCode, bankName, accountNumber, accountName: resolvedAccountName }),
+    });
+
+    if (ok && data.success) {
+      msgEl.innerHTML = `<div class="msg ok">Listing created — you'll receive ₦${data.youWillReceivePerSale.toLocaleString()} per sale.</div>`;
+      ["f-title", "f-desc", "f-amount", "f-account"].forEach(id => document.getElementById(id).value = "");
+      document.getElementById("feePreview").style.display = "none";
+      loadListings();
+    } else {
+      msgEl.innerHTML = `<div class="msg err">${escapeHtml(data.message || "Could not create listing.")}</div>`;
+    }
+    btn.disabled = false;
+    btn.textContent = "Create Listing";
+  };
+
+  async function loadListings() {
+    const el = document.getElementById("listingsList");
+    const [listingsRes, salesRes] = await Promise.all([
+      apiFetch("/affiliate/listings/mine"),
+      apiFetch("/affiliate/listings/mine/sales"),
+    ]);
+
+    if (!listingsRes.ok) { el.innerHTML = `<div class="empty">Could not load: ${escapeHtml(listingsRes.data.message || "")}</div>`; return; }
+
+    const listings = listingsRes.data.listings || [];
+    if (listings.length === 0) {
+      el.innerHTML = '<div class="empty">No listings yet — create one to get started.</div>';
+      return;
+    }
+
+    const salesByListing = {};
+    (salesRes.data.sales || []).forEach(s => {
+      salesByListing[s.listingId] = salesByListing[s.listingId] || { count: 0, total: 0 };
+      salesByListing[s.listingId].count++;
+      salesByListing[s.listingId].total += s.businessPayout || 0;
+    });
+
+    el.innerHTML = listings.map(l => {
+      const stats = salesByListing[l.id] || { count: 0, total: 0 };
+      return `
+        <div class="listing-row">
+          <div class="lr-top">
+            <div><h3>${escapeHtml(l.title)}</h3><div class="lr-meta">₦${(l.productAmount || 0).toLocaleString()} · ${stats.count} sale${stats.count === 1 ? '' : 's'} · ₦${stats.total.toLocaleString()} earned</div></div>
+            <span class="badge ${l.status}">${escapeHtml(l.status)}</span>
+          </div>
+          ${l.status === 'active' ? `<button class="btn outline small" style="margin-top:10px;" onclick="doDeleteListing('${l.id}')">Delete Listing</button>` : ''}
+        </div>
+      `;
+    }).join("");
+  }
+
+  window.doDeleteListing = async function (id) {
+    if (!confirm("Delete this listing? It will stop appearing for workers immediately. This can't be undone.")) return;
+    const { ok, data } = await apiFetch(`/affiliate/listings/${id}`, { method: "DELETE" });
+    if (ok && data.success) loadListings();
+    else alert("Could not delete: " + (data.message || ""));
+  };
+
+  init();
+</script>
+
+</body>
+</html>
