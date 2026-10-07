@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Qapela — Affiliate Marketplace</title>
+<style>
+  :root{
+    --primary:#0B5CFF; --secondary:#0E2A6B; --accent:#F5B301; --neutral:#F8FAFF;
+    --bg:#F8FAFF; --card:#FFFFFF; --line:#E6EAF2;
+    --text:#1B2559; --muted:#6B7590; --green:#16A34A; --danger:#DC2626;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,-apple-system,sans-serif; max-width:420px; margin-left:auto; margin-right:auto; min-height:100vh; padding-bottom:24px;}
+  svg.ic{width:1em; height:1em; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; vertical-align:-0.15em;}
+
+  header.topbar{background:var(--secondary); color:#fff; padding:16px 18px 20px; border-radius:0 0 20px 20px;}
+  .topbar-row{display:flex; align-items:center; gap:10px;}
+  .back{font-size:19px; color:#fff; cursor:pointer;}
+  .brand{display:flex; align-items:center; gap:9px; font-weight:800; font-size:16px;}
+  .logo-mark{width:26px; height:26px; border-radius:7px; flex-shrink:0; background:linear-gradient(135deg,var(--primary),var(--accent)); display:flex; align-items:center; justify-content:center;}
+
+  .tabs{display:flex; gap:6px; padding:14px 16px 0;}
+  .tab{flex:1; text-align:center; padding:9px; border-radius:10px; font-size:12.5px; font-weight:700; color:var(--muted); background:var(--card); border:1px solid var(--line); cursor:pointer;}
+  .tab.active{background:var(--primary); color:#fff; border-color:var(--primary);}
+
+  main{padding:14px 16px;}
+  .view{display:none;}
+  .view.active{display:block;}
+
+  .stats-row{display:flex; gap:10px; margin-bottom:14px;}
+  .stat-card{flex:1; background:var(--card); border:1px solid var(--line); border-radius:13px; padding:12px;}
+  .stat-card .label{font-size:10px; color:var(--muted); font-weight:700; text-transform:uppercase; letter-spacing:.03em;}
+  .stat-card .value{font-size:15.5px; font-weight:800; margin-top:5px;}
+
+  .listing-card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:14px; margin-bottom:10px;}
+  .listing-card h3{margin:0 0 4px; font-size:14px; font-weight:700;}
+  .listing-card p{margin:0 0 10px; font-size:12px; color:var(--muted); line-height:1.4;}
+  .price-tag{font-size:12px; font-weight:800; color:#92400E; background:#FEF3C7; padding:4px 10px; border-radius:20px; display:inline-block; margin-bottom:10px;}
+  .btn{width:100%; background:var(--primary); color:#fff; border:none; padding:10px; border-radius:9px; font-weight:700; font-size:12.5px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px;}
+  .btn.outline{background:#fff; color:var(--primary); border:1px solid var(--primary);}
+
+  .mylink-card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:13px; margin-bottom:10px;}
+  .mylink-top{display:flex; justify-content:space-between; align-items:flex-start; gap:8px;}
+  .mylink-top h3{margin:0; font-size:13.5px; font-weight:700;}
+  .mylink-meta{font-size:11px; color:var(--muted); margin-top:3px;}
+  .link-row{background:var(--neutral); border-radius:8px; padding:8px 10px; margin-top:9px; font-size:11px; word-break:break-all;}
+  .share-row{display:flex; gap:6px; margin-top:8px;}
+  .share-row button{flex:1;}
+
+  .empty{color:var(--muted); font-size:13px; text-align:center; padding:30px 10px;}
+
+  .modal-backdrop{position:fixed; inset:0; background:rgba(14,42,107,0.5); display:flex; align-items:flex-end; z-index:30;}
+  .modal-backdrop.hidden{display:none;}
+  .modal{background:#fff; border-radius:18px 18px 0 0; padding:20px 18px 24px; width:100%; max-width:420px; margin:0 auto; max-height:85vh; overflow-y:auto;}
+  .modal h3{margin:0 0 4px; font-size:15px;}
+  .modal .sub{font-size:12px; color:var(--muted); margin-bottom:14px;}
+  .field{margin-bottom:12px;}
+  .field label{display:block; font-size:12px; font-weight:700; margin-bottom:6px;}
+  .field input, .field select{width:100%; padding:10px 11px; border:1px solid var(--line); border-radius:9px; font-size:13px; box-sizing:border-box;}
+  .resolve-status{font-size:11.5px; margin-top:5px; min-height:14px;}
+  .resolve-status.ok{color:var(--green); font-weight:700;}
+  .resolve-status.err{color:var(--danger);}
+  .price-preview{background:var(--neutral); border-radius:9px; padding:10px; font-size:12px; margin:6px 0 12px; display:flex; justify-content:space-between; font-weight:700; color:var(--secondary);}
+  .modal-actions{display:flex; gap:8px; margin-top:8px;}
+  .modal-actions button{flex:1; padding:11px; border-radius:9px; font-weight:700; font-size:13px; cursor:pointer;}
+  .modal-actions .cancel{background:var(--neutral); border:1px solid var(--line); color:var(--text);}
+  .modal-actions .submit{background:var(--primary); border:none; color:#fff;}
+  .msg{font-size:12px; margin-top:8px;}
+  .msg.err{color:var(--danger);}
+
+  .toast{position:fixed; bottom:20px; left:50%; transform:translateX(-50%); background:var(--secondary); color:#fff; padding:10px 18px; border-radius:20px; font-size:12.5px; opacity:0; transition:opacity .25s; pointer-events:none; max-width:80%; text-align:center; z-index:40;}
+  .toast.show{opacity:1;}
+  .hidden{display:none;}
+</style>
+<link rel="stylesheet" href="assets/qapela-theme.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+<defs>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M9 15l6-6"/><path d="M13 6l1.5-1.5a3.5 3.5 0 0 1 5 5L18 11"/><path d="M11 18l-1.5 1.5a3.5 3.5 0 0 1-5-5L6 13"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8 15.8 6.2M8.2 13.2l7.6 4.6"/></symbol>
+</defs>
+</svg>
+
+<div id="app" class="hidden">
+  <header class="topbar">
+    <div class="topbar-row">
+      <span class="back" onclick="history.back()"><svg class="ic"><use href="#i-back"/></svg></span>
+      <div class="brand">
+        <div class="logo-mark"><img class="qapela-logo-img" src="assets/qapela-logo-icon.png" alt="Qapela mark" style="width:15px;height:15px;"></div>
+        Affiliate Marketplace
+      </div>
+    </div>
+  </header>
+
+  <div class="tabs">
+    <div class="tab active" data-tab="browse" onclick="setTab('browse')">Browse</div>
+    <div class="tab" data-tab="mylinks" onclick="setTab('mylinks')">My Links</div>
+  </div>
+
+  <main>
+    <div class="view active" id="view-browse">
+      <div id="listingsList"><div class="empty">Loading…</div></div>
+    </div>
+
+    <div class="view" id="view-mylinks">
+      <div class="stats-row">
+        <div class="stat-card"><div class="label">Links</div><div class="value" id="statLinks">0</div></div>
+        <div class="stat-card"><div class="label">Sales</div><div class="value" id="statSales">0</div></div>
+        <div class="stat-card"><div class="label">Earned</div><div class="value" id="statEarned">₦0</div></div>
+      </div>
+      <div id="myLinksList"><div class="empty">Loading…</div></div>
+    </div>
+  </main>
+</div>
+
+<div class="modal-backdrop hidden" id="linkModal">
+  <div class="modal">
+    <h3 id="linkModalTitle">Create Your Link</h3>
+    <div class="sub">Set your own commission and where it gets paid. Customers only ever see one final price.</div>
+
+    <div class="field"><label>Your Commission (₦)</label><input type="number" id="f-commission" placeholder="e.g. 1000"></div>
+    <div class="price-preview" id="pricePreview"><span>Customer pays</span><span id="pricePreviewValue">₦0</span></div>
+
+    <div class="field"><label>Payout Bank</label><select id="f-linkbank"><option value="">Loading banks…</option></select></div>
+    <div class="field"><label>Account Number</label>
+      <input type="text" id="f-linkaccount" maxlength="10" inputmode="numeric" placeholder="0123456789">
+      <div class="resolve-status" id="linkResolveStatus"></div>
+    </div>
+
+    <div class="msg err" id="linkModalMsg"></div>
+    <div class="modal-actions">
+      <button class="cancel" onclick="closeLinkModal()">Cancel</button>
+      <button class="submit" id="createLinkBtn" onclick="submitCreateLink()">Create Link</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  const API_BASE = "https://capella-api-5c6c.drthankgod08.workers.dev";
+  const APP_BASE_URL = window.location.origin + window.location.pathname.replace(/qapela-affiliate-marketplace\\.html$/, "");
+
+  let listings = [];
+  let myLinks = [];
+  let pendingListingId = null;
+  let linkResolvedAccountName = null;
+  let linkResolveTimer = null;
+
+  async function apiFetch(path, options = {}) {
+    const res = await fetch(API_BASE + path, {
+      ...options,
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + localStorage.getItem("qapela_token"), ...(options.headers || {}) },
+    });
+    const renewed = res.headers.get("X-Renewed-Token");
+    if (renewed) localStorage.setItem("qapela_token", renewed);
+    const data = await res.json().catch(() => ({}));
+    return { ok: res.ok, status: res.status, data };
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, s => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[s]));
+  }
+
+  async function init() {
+    const token = localStorage.getItem("qapela_token");
+    if (!token) { window.location.href = "qapela-login.html"; return; }
+
+    const me = await apiFetch("/auth/me");
+    if (!me.ok) { window.location.href = "qapela-login.html"; return; }
+
+    document.getElementById("app").classList.remove("hidden");
+    loadBanks();
+    loadListings();
+    loadMyLinks();
+  }
+
+  window.setTab = function (tab) {
+    document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === tab));
+    document.querySelectorAll(".view").forEach(v => v.classList.remove("active"));
+    document.getElementById("view-" + tab).classList.add("active");
+  };
+
+  async function loadBanks() {
+    const sel = document.getElementById("f-linkbank");
+    const { ok, data } = await apiFetch("/banks");
+    if (!ok) { sel.innerHTML = '<option value="">Could not load banks</option>'; return; }
+    sel.innerHTML = '<option value="">Select your bank</option>' + (data.banks || []).map(b => `<option value="${b.code}">${escapeHtml(b.name)}</option>`).join("");
+  }
+
+  async function loadListings() {
+    const el = document.getElementById("listingsList");
+    const { ok, data } = await apiFetch("/affiliate/listings");
+    if (!ok) { el.innerHTML = `<div class="empty">Could not load: ${escapeHtml(data.message || "")}</div>`; return; }
+    listings = data.listings || [];
+    if (listings.length === 0) { el.innerHTML = '<div class="empty">No active listings right now.</div>'; return; }
+    el.innerHTML = listings.map(renderListing).join("");
+  }
+
+  function renderListing(l) {
+    const existing = myLinks.find(x => x.listingId === l.id);
+    return `
+      <div class="listing-card">
+        <h3>${escapeHtml(l.title)}</h3>
+        <p>${escapeHtml(l.description || "")}</p>
+        <div class="price-tag">Product price: ₦${(l.productAmount || 0).toLocaleString()}</div>
+        ${existing
+          ? `<button class="btn" onclick="shareMyLink('${existing.code}')"><svg class="ic"><use href="#i-share"/></svg> Share My Link</button>`
+          : `<button class="btn outline" onclick="openLinkModal('${l.id}', ${l.productAmount})"><svg class="ic"><use href="#i-link"/></svg> Create My Link</button>`
+        }
+      </div>
+    `;
+  }
+
+  window.openLinkModal = function (listingId, productAmount) {
+    pendingListingId = listingId;
+    document.getElementById("f-commission").value = "";
+    document.getElementById("f-linkaccount").value = "";
+    document.getElementById("linkResolveStatus").textContent = "";
+    document.getElementById("linkModalMsg").textContent = "";
+    linkResolvedAccountName = null;
+    updateLinkPricePreview(productAmount);
+    document.getElementById("f-commission").oninput = () => updateLinkPricePreview(productAmount);
+    document.getElementById("linkModal").classList.remove("hidden");
+  };
+  window.closeLinkModal = function () {
+    document.getElementById("linkModal").classList.add("hidden");
+    pendingListingId = null;
+  };
+
+  function updateLinkPricePreview(productAmount) {
+    const commission = Math.floor(Number(document.getElementById("f-commission").value)) || 0;
+    document.getElementById("pricePreviewValue").textContent = "₦" + (productAmount + commission).toLocaleString();
+  }
+
+  document.getElementById("f-linkaccount").addEventListener("input", scheduleLinkResolve);
+  document.getElementById("f-linkbank").addEventListener("change", scheduleLinkResolve);
+  function scheduleLinkResolve() {
+    clearTimeout(linkResolveTimer);
+    linkResolvedAccountName = null;
+    const statusEl = document.getElementById("linkResolveStatus");
+    const acct = document.getElementById("f-linkaccount").value.trim();
+    const bankCode = document.getElementById("f-linkbank").value;
+    if (acct.length !== 10 || !bankCode) { statusEl.textContent = ""; statusEl.className = "resolve-status"; return; }
+    statusEl.textContent = "Resolving…";
+    statusEl.className = "resolve-status";
+    linkResolveTimer = setTimeout(async () => {
+      const { ok, data } = await apiFetch("/banks/resolve", { method: "POST", body: JSON.stringify({ accountNumber: acct, bankCode }) });
+      if (ok && data.accountName) {
+        linkResolvedAccountName = data.accountName;
+        statusEl.textContent = "✓ " + data.accountName;
+        statusEl.className = "resolve-status ok";
+      } else {
+        statusEl.textContent = data.message || "Could not verify account.";
+        statusEl.className = "resolve-status err";
+      }
+    }, 600);
+  }
+
+  window.submitCreateLink = async function () {
+    const msgEl = document.getElementById("linkModalMsg");
+    msgEl.textContent = "";
+    const commission = Math.floor(Number(document.getElementById("f-commission").value));
+    const bankCode = document.getElementById("f-linkbank").value;
+    const bankName = document.getElementById("f-linkbank").selectedOptions[0]?.textContent || "";
+    const accountNumber = document.getElementById("f-linkaccount").value.trim();
+
+    if (!commission || commission <= 0) { msgEl.textContent = "Enter the commission you want to add."; return; }
+    if (!bankCode || accountNumber.length !== 10) { msgEl.textContent = "Select a bank and enter a valid account number."; return; }
+    if (!linkResolvedAccountName) { msgEl.textContent = "We need to verify this account first."; return; }
+
+    const btn = document.getElementById("createLinkBtn");
+    btn.disabled = true;
+    btn.textContent = "Creating…";
+
+    const { ok, data } = await apiFetch("/affiliate/links", {
+      method: "POST",
+      body: JSON.stringify({ listingId: pendingListingId, commission, bankCode, bankName, accountNumber, accountName: linkResolvedAccountName }),
+    });
+
+    if (ok && data.success) {
+      closeLinkModal();
+      showToast("Link created — find it under My Links");
+      loadMyLinks();
+      loadListings();
+    } else {
+      msgEl.textContent = data.message || "Could not create link.";
+    }
+    btn.disabled = false;
+    btn.textContent = "Create Link";
+  };
+
+  function checkoutUrl(code) {
+    return `${APP_BASE_URL}qapela-checkout.html?code=${code}`;
+  }
+
+  window.shareMyLink = function (code) {
+    const url = checkoutUrl(code);
+    if (navigator.share) {
+      navigator.share({ title: "Check this out", url }).catch(() => {});
+    } else {
+      navigator.clipboard.writeText(url).then(() => showToast("Link copied"));
+    }
+  };
+  window.copyMyLink = function (code) {
+    navigator.clipboard.writeText(checkoutUrl(code)).then(() => showToast("Link copied"));
+  };
+
+  async function loadMyLinks() {
+    const { ok, data } = await apiFetch("/affiliate/links/mine");
+    if (!ok) return;
+    myLinks = data.links || [];
+    document.getElementById("statLinks").textContent = myLinks.length;
+
+    const el = document.getElementById("myLinksList");
+    if (myLinks.length === 0) {
+      el.innerHTML = '<div class="empty">No links yet — browse listings to create one.</div>';
+    } else {
+      el.innerHTML = myLinks.map(l => `
+        <div class="mylink-card">
+          <div class="mylink-top">
+            <h3>${escapeHtml(l.title)}</h3>
+          </div>
+          <div class="mylink-meta">Your commission: ₦${(l.commission || 0).toLocaleString()} · Customer pays: ₦${(l.totalCustomerPrice || 0).toLocaleString()}</div>
+          <div class="link-row">${checkoutUrl(l.code)}</div>
+          <div class="share-row">
+            <button class="btn" onclick="shareMyLink('${l.code}')"><svg class="ic"><use href="#i-share"/></svg> Share</button>
+            <button class="btn outline" onclick="copyMyLink('${l.code}')"><svg class="ic"><use href="#i-copy"/></svg></button>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    const salesRes = await apiFetch("/affiliate/links/mine/sales");
+    if (salesRes.ok) {
+      const sales = salesRes.data.sales || [];
+      document.getElementById("statSales").textContent = sales.length;
+      const earned = sales.reduce((sum, s) => sum + (s.workerCommission || 0), 0);
+      document.getElementById("statEarned").textContent = "₦" + earned.toLocaleString();
+    }
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    setTimeout(() => t.classList.remove("show"), 2200);
+  }
+
+  init();
+</script>
+
+</body>
+</html>

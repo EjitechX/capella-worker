@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Qapela — Business Profile</title>
+<style>
+  :root{
+    --primary:#0B5CFF; --secondary:#0E2A6B; --accent:#F5B301; --neutral:#F8FAFF;
+    --bg:#F8FAFF; --card:#FFFFFF; --line:#E6EAF2; --text:#1B2559; --muted:#6B7590; --green:#16A34A; --danger:#DC2626;
+  }
+  *{box-sizing:border-box;}
+  body{margin:0; background:var(--bg); color:var(--text); font-family:'Segoe UI',system-ui,-apple-system,sans-serif;}
+  svg.ic{width:1em; height:1em; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; vertical-align:-0.15em;}
+  .wrap{max-width:520px; margin:0 auto; padding:24px 18px 60px;}
+
+  header{background:var(--secondary); color:#fff; padding:18px; border-radius:0 0 18px 18px; display:flex; align-items:center; gap:12px; margin-bottom:20px;}
+  .logo-mark{width:30px; height:30px; border-radius:8px; background:linear-gradient(135deg,var(--primary),var(--accent)); display:flex; align-items:center; justify-content:center; flex-shrink:0;}
+  header h1{font-size:16px; margin:0;}
+  header a{color:#B9C4E5; font-size:12.5px; text-decoration:none; margin-left:auto;}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:20px; margin-bottom:16px;}
+  .card h3{font-size:14px; margin:0 0 14px;}
+  .field{margin-bottom:14px;}
+  .field label{display:block; font-size:12.5px; font-weight:700; margin-bottom:6px;}
+  .field input{width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:9px; font-size:13.5px; box-sizing:border-box;}
+  .field input:disabled{background:var(--neutral); color:var(--muted);}
+  .btn{background:var(--primary); color:#fff; border:none; padding:11px 20px; border-radius:9px; font-weight:700; font-size:13.5px; cursor:pointer;}
+  .btn:disabled{background:var(--line); color:var(--muted);}
+  .msg{font-size:12.5px; margin-top:10px; padding:9px 11px; border-radius:8px;}
+  .msg.ok{background:rgba(22,163,74,.08); color:var(--green);}
+  .msg.err{background:rgba(220,38,38,.08); color:var(--danger);}
+  .status-row{display:flex; justify-content:space-between; padding:9px 0; border-bottom:1px solid var(--line); font-size:13.5px;}
+  .status-row:last-child{border-bottom:none;}
+  .badge{font-size:11px; font-weight:700; padding:3px 10px; border-radius:20px; background:rgba(22,163,74,.12); color:var(--green);}
+  .badge.no{background:var(--neutral); color:var(--muted); border:1px solid var(--line);}
+  .hidden{display:none;}
+</style>
+<link rel="stylesheet" href="assets/qapela-theme.css">
+</head>
+<body>
+
+<div id="app" class="hidden wrap">
+  <header>
+    <div class="logo-mark"><img class="qapela-logo-img" src="assets/qapela-logo-icon.png" alt="Qapela mark" style="width:16px;height:16px;"></div>
+    <h1>Business Profile</h1>
+    <a href="qapela-business.html">← Dashboard</a>
+  </header>
+
+  <div class="card">
+    <h3>Company Details</h3>
+    <div class="field"><label>Company Name</label><input type="text" id="f-company"></div>
+    <div class="field"><label>Email</label><input type="text" id="f-email" disabled></div>
+    <button class="btn" id="saveBtn" onclick="saveProfile()">Save Changes</button>
+    <div id="saveMsg"></div>
+  </div>
+
+  <div class="card">
+    <h3>Account Status</h3>
+    <div class="status-row"><span>Business Activation</span><span class="badge" id="activatedBadge">—</span></div>
+    <div class="status-row"><span>Worker Access</span><span class="badge" id="workerAccessBadge">—</span></div>
+  </div>
+
+  <div class="card" id="switchCard" style="display:none;">
+    <h3>Also Complete Tasks</h3>
+    <p style="font-size:12.5px; color:var(--muted); margin:0 0 12px;">Use this same account to earn as a worker too.</p>
+    <button class="btn" onclick="switchToWorker()">Switch to Worker</button>
+  </div>
+</div>
+
+<script>
+  const API_BASE = "https://capella-api-5c6c.drthankgod08.workers.dev";
+
+  async function apiFetch(path, options = {}) {
+    const res = await fetch(API_BASE + path, {
+      ...options,
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + localStorage.getItem("qapela_token"), ...(options.headers || {}) },
+    });
+    const renewed = res.headers.get("X-Renewed-Token");
+    if (renewed) localStorage.setItem("qapela_token", renewed);
+    const data = await res.json().catch(() => ({}));
+    return { ok: res.ok, status: res.status, data };
+  }
+
+  window.switchToWorker = async function () {
+    await apiFetch("/account/roles", { method: "POST", body: JSON.stringify({ role: "worker" }) });
+    window.location.href = "qapela-worker.html";
+  };
+
+  async function init() {
+    const token = localStorage.getItem("qapela_token");
+    if (!token) { window.location.href = "qapela-login.html"; return; }
+
+    const me = await apiFetch("/auth/me");
+    if (!me.ok) {
+      localStorage.removeItem("qapela_token");
+      window.location.href = "qapela-login.html";
+      return;
+    }
+
+    document.getElementById("app").classList.remove("hidden");
+
+    const u = me.data;
+    document.getElementById("f-email").value = u.email || u.phone || "";
+    document.getElementById("activatedBadge").textContent = u.businessActivated ? "Activated" : "Not activated";
+    document.getElementById("activatedBadge").className = "badge " + (u.businessActivated ? "" : "no");
+
+    document.getElementById("workerAccessBadge").textContent = u.roleWorker ? (u.workerActivated ? "Active" : "Set up, not activated") : "Not set up";
+    document.getElementById("workerAccessBadge").className = "badge " + (u.workerActivated ? "" : "no");
+    document.getElementById("switchCard").style.display = u.roleWorker ? "none" : "block";
+
+    const bizRes = await apiFetch("/business-profile/mine");
+    if (bizRes.ok) document.getElementById("f-company").value = bizRes.data.name || "";
+  }
+
+  window.saveProfile = async function () {
+    const btn = document.getElementById("saveBtn");
+    const msgEl = document.getElementById("saveMsg");
+    const company = document.getElementById("f-company").value.trim();
+    if (!company) {
+      msgEl.innerHTML = '<div class="msg err">Company name can\'t be empty.</div>';
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = "Saving…";
+
+    const { ok, data } = await apiFetch("/account/business-profile", { method: "POST", body: JSON.stringify({ name: company }) });
+
+    msgEl.innerHTML = ok && data.success
+      ? '<div class="msg ok">Saved.</div>'
+      : `<div class="msg err">${data.message || "Could not save."}</div>`;
+
+    btn.disabled = false;
+    btn.textContent = "Save Changes";
+  };
+
+  init();
+</script>
+
+</body>
+</html>

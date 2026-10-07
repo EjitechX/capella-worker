@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Welcome to Qapela</title>
+<style>
+  :root{
+    --primary:#0B5CFF; --secondary:#0E2A6B; --accent:#F5B301; --neutral:#F8FAFF;
+    --text:#1B2559; --muted:#6B7590; --line:#E6EAF2;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{margin:0; background:var(--secondary); color:#fff; font-family:'Segoe UI',system-ui,-apple-system,sans-serif; max-width:460px; margin-left:auto; margin-right:auto; min-height:100vh; overflow-x:hidden;}
+  svg.ic{width:1em; height:1em; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; vertical-align:-0.15em;}
+
+  .shell{min-height:100vh; display:flex; flex-direction:column;}
+
+  .skip-row{display:flex; justify-content:flex-end; padding:16px 18px 0;}
+  .skip-row button{background:none; border:none; color:rgba(255,255,255,.75); font-size:13px; font-weight:600; cursor:pointer; padding:6px 4px;}
+
+  .brand-row{display:flex; justify-content:center; padding:2px 0 6px;}
+  .brand-row img{height:92px; width:auto; display:block;}
+
+  .track-wrap{flex:1; overflow:hidden; position:relative;}
+  .track{display:flex; height:100%; transition:transform .38s cubic-bezier(.4,0,.2,1);}
+  .slide{min-width:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:10px 32px 20px; text-align:center;}
+
+  .art{width:180px; height:180px; border-radius:32px; display:flex; align-items:center; justify-content:center; margin-bottom:34px; position:relative;}
+  .art svg{width:78px; height:78px; stroke:#fff; fill:none; stroke-width:1.6; stroke-linecap:round; stroke-linejoin:round;}
+  .art.a1{background:linear-gradient(135deg,var(--primary),#3D82FF);}
+  .art.a2{background:linear-gradient(135deg,#16A34A,#22C55E);}
+  .art.a3{background:linear-gradient(135deg,var(--accent),#FFC94D);}
+  .art.a4{background:linear-gradient(135deg,#7C3AED,#A855F7);}
+
+  .slide h2{font-size:21px; font-weight:800; margin:0 0 12px; line-height:1.3;}
+  .slide p{font-size:13.5px; color:rgba(255,255,255,.72); line-height:1.6; margin:0; max-width:320px;}
+
+  .dots{display:flex; justify-content:center; gap:7px; padding:22px 0 4px;}
+  .dot{width:7px; height:7px; border-radius:50%; background:rgba(255,255,255,.28); transition:all .25s;}
+  .dot.active{background:var(--accent); width:22px; border-radius:4px;}
+
+  .footer{padding:18px 22px 28px;}
+  .btn-row{display:flex; gap:10px;}
+  .btn{flex:1; padding:14px; border-radius:13px; font-weight:700; font-size:14.5px; cursor:pointer; border:none; display:flex; align-items:center; justify-content:center; gap:8px;}
+  .btn-primary{background:var(--accent); color:#3A2900;}
+  .btn-ghost{background:rgba(255,255,255,.1); color:#fff; border:1px solid rgba(255,255,255,.25) !important;}
+  .btn-back{display:none;}
+  .legal-note{text-align:center; font-size:10.5px; color:rgba(255,255,255,.45); margin-top:16px; line-height:1.6;}
+  .legal-note a{color:rgba(255,255,255,.7); text-decoration:underline;}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+<defs>
+  <symbol id="i-coins" viewBox="0 0 24 24"><ellipse cx="9" cy="7" rx="6" ry="3"/><path d="M3 7v10c0 1.6 2.7 3 6 3s6-1.4 6-3V7"/><path d="M3 12c0 1.6 2.7 3 6 3s6-1.4 6-3"/><ellipse cx="17" cy="12" rx="4" ry="2"/><path d="M13 12v5c0 1.1 1.8 2 4 2s4-.9 4-2v-5"/></symbol>
+  <symbol id="i-rocket" viewBox="0 0 24 24"><path d="M12 2c3 2 5 6 4 12l-4 4-4-4c-1-6 1-10 4-12Z"/><circle cx="12" cy="9" r="1.6"/><path d="M8 15l-3 3M16 15l3 3M9 21l1-3M15 21l-1-3"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><circle cx="18" cy="5" r="2.5"/><circle cx="6" cy="12" r="2.5"/><circle cx="18" cy="19" r="2.5"/><path d="M8.2 10.8 15.8 6.2M8.2 13.2l7.6 4.6"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v6c0 4.8-3 8.4-7 9-4-.6-7-4.2-7-9V6l7-3Z"/><path d="M9 12l2 2 4-4"/></symbol>
+</defs>
+</svg>
+
+<div class="shell">
+  <div class="skip-row"><button onclick="goToSignup()">Skip</button></div>
+
+  <div class="brand-row"><img src="assets/qapela-logo.png" alt="Qapela — Work. Earn. Grow."></div>
+
+  <div class="track-wrap">
+    <div class="track" id="track">
+      <div class="slide">
+        <div class="art a1"><svg><use href="#i-coins"/></svg></div>
+        <h2>Earn real money, one task at a time</h2>
+        <p>Complete simple tasks for real Nigerian businesses — social media engagement, app testing, surveys, and more. Get paid straight to your bank account.</p>
+      </div>
+      <div class="slide">
+        <div class="art a2"><svg><use href="#i-rocket"/></svg></div>
+        <h2>Grow your business, on your terms</h2>
+        <p>Launch a campaign, set your budget, and reach real people who complete real tasks. Track results and pay only for verified work.</p>
+      </div>
+      <div class="slide">
+        <div class="art a3"><svg><use href="#i-share"/></svg></div>
+        <h2>Refer, promote, earn more</h2>
+        <p>Invite others and earn a share of their activity. Promote products through the affiliate marketplace or sell your unreleased music directly to fans.</p>
+      </div>
+      <div class="slide">
+        <div class="art a4"><svg><use href="#i-shield"/></svg></div>
+        <h2>Your money, handled properly</h2>
+        <p>Payments run through Paystack. Withdrawals go straight to your verified bank account — no middlemen holding your earnings.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="dots" id="dots"></div>
+
+  <div class="footer">
+    <div class="btn-row">
+      <button class="btn btn-ghost btn-back" id="backBtn" onclick="prevSlide()">Back</button>
+      <button class="btn btn-primary" id="nextBtn" onclick="nextSlide()">Next</button>
+    </div>
+    <div class="legal-note">
+      By continuing, you agree to Qapela's <a href="qapela-terms-of-use.html">Terms of Use</a> and <a href="qapela-privacy-policy.html">Privacy Policy</a>.
+    </div>
+  </div>
+</div>
+
+<script>
+  const totalSlides = document.querySelectorAll(".slide").length;
+  let current = 0;
+  let touchStartX = null;
+
+  const dotsEl = document.getElementById("dots");
+  for (let i = 0; i < totalSlides; i++) {
+    const d = document.createElement("div");
+    d.className = "dot" + (i === 0 ? " active" : "");
+    dotsEl.appendChild(d);
+  }
+
+  function render() {
+    document.getElementById("track").style.transform = `translateX(-${current * 100}%)`;
+    document.querySelectorAll(".dot").forEach((d, i) => d.classList.toggle("active", i === current));
+    document.getElementById("backBtn").style.display = current === 0 ? "none" : "flex";
+    document.getElementById("nextBtn").textContent = current === totalSlides - 1 ? "Get Started" : "Next";
+  }
+
+  function nextSlide() {
+    if (current < totalSlides - 1) { current++; render(); }
+    else { goToSignup(); }
+  }
+  function prevSlide() {
+    if (current > 0) { current--; render(); }
+  }
+  window.nextSlide = nextSlide;
+  window.prevSlide = prevSlide;
+
+  window.goToSignup = function () {
+    localStorage.setItem("qapela_onboarded", "1");
+    window.location.href = "qapela-signup.html";
+  };
+
+  const trackWrap = document.querySelector(".track-wrap");
+  trackWrap.addEventListener("touchstart", e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+  trackWrap.addEventListener("touchend", e => {
+    if (touchStartX === null) return;
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if (dx < -40) nextSlide();
+    else if (dx > 40) prevSlide();
+    touchStartX = null;
+  }, { passive: true });
+
+  render();
+</script>
+
+</body>
+</html>

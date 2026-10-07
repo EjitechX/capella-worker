@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Qapela</title>
+<style>
+  :root{ --primary:#0B5CFF; --secondary:#0E2A6B; --accent:#F5B301; }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    background:var(--secondary); font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  }
+  .logo-mark{
+    width:84px; height:84px; border-radius:20px;
+    background:#011650; object-fit:contain;
+    animation:pulse 1.4s ease-in-out infinite;
+  }
+  @keyframes pulse{ 0%,100%{opacity:1; transform:scale(1);} 50%{opacity:.7; transform:scale(.94);} }
+</style>
+</head>
+<body>
+
+<img class="logo-mark" src="assets/qapela-logo-icon.png" alt="Qapela">
+
+<script>
+  const API_BASE = "https://capella-api-5c6c.drthankgod08.workers.dev";
+
+  // One-time carry-over from the old key names so existing users stay signed in.
+  ["token","uid","role","onboarded","profile"].forEach(function (k) {
+    try {
+      var old = localStorage.getItem("capella_" + k);
+      if (old !== null && localStorage.getItem("qapela_" + k) === null) localStorage.setItem("qapela_" + k, old);
+      localStorage.removeItem("capella_" + k);
+    } catch (e) {}
+  });
+
+  async function route() {
+    const token = localStorage.getItem("qapela_token");
+
+    if (token) {
+      try {
+        const res = await fetch(API_BASE + "/auth/me", { headers: { Authorization: "Bearer " + token } });
+        if (res.ok) {
+          const profile = await res.json();
+          if (!profile.accountActivated) {
+            const role = profile.roleBusiness && !profile.roleWorker ? "business" : "worker";
+            window.location.href = "qapela-activation.html?role=" + role;
+            return;
+          }
+          window.location.href = (profile.roleBusiness && !profile.roleWorker) ? "qapela-business.html" : "qapela-worker.html";
+          return;
+        }
+      } catch (err) { /* fall through to onboarding/login below */ }
+      localStorage.removeItem("qapela_token");
+    }
+
+    window.location.href = localStorage.getItem("qapela_onboarded") ? "qapela-login.html" : "qapela-onboarding.html";
+  }
+
+  route();
+</script>
+
+</body>
+</html>

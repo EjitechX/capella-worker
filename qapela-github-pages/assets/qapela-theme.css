@@ -1,0 +1,101 @@
+
+/* QAPELA VISUAL SYSTEM — aligned to the approved blue/white/gold reference */
+:root{
+  --primary:#0B5CFF !important;
+  --secondary:#0E2A6B !important;
+  --accent:#F5B301 !important;
+  --neutral:#F8FAFF !important;
+  --bg:#F4F7FC !important;
+  --card:#FFFFFF !important;
+  --line:#E2E8F2 !important;
+  --text:#14204A !important;
+  --muted:#68738D !important;
+  --green:#16A34A !important;
+  --danger:#DC2626 !important;
+  --radius:16px !important;
+}
+html{background:#F4F7FC;}
+body{background:var(--bg);color:var(--text);}
+
+/* Approved Qapela wordmark */
+.logo, .brand{gap:10px !important;}
+.logo-mark, .brand .logo-mark, header .logo-mark, .login-wrap .logo-mark{
+  background:#011650 !important;
+  border:1px solid rgba(11,92,255,.25) !important;
+  box-shadow:0 5px 18px rgba(14,42,107,.12) !important;
+  overflow:hidden !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+.qapela-logo-img{display:block !important;width:100% !important;height:100% !important;object-fit:contain !important;}
+.qapela-logo-full{display:block !important;width:132px !important;height:auto !important;max-height:68px !important;object-fit:contain !important;background:transparent !important;}
+.qapela-logo-icon{display:block !important;width:100% !important;height:100% !important;object-fit:contain !important;}
+
+/* Desktop navigation */
+.sidebar{
+  background:linear-gradient(180deg,#0E2A6B 0%,#071D55 100%) !important;
+  box-shadow:8px 0 28px rgba(14,42,107,.12) !important;
+  border-right:1px solid rgba(255,255,255,.06) !important;
+}
+.sidebar .logo{
+  min-height:68px !important;
+  padding:4px 6px 18px !important;
+  align-items:center !important;
+  color:#fff !important;
+}
+.sidebar .logo-mark{width:46px !important;height:46px !important;border-radius:12px !important;}
+.sidebar .logo .qapela-logo-img{object-fit:contain !important;}
+.nav-item{border-radius:10px !important;transition:all .18s ease !important;}
+.nav-item:hover{background:rgba(255,255,255,.08) !important;transform:translateX(1px);}
+.nav-item.active{background:linear-gradient(90deg,#0B5CFF,#2563EB) !important;box-shadow:0 8px 18px rgba(11,92,255,.22) !important;}
+
+/* Headers */
+header.topbar,.topbar{
+  background:linear-gradient(100deg,#0E2A6B 0%,#123D93 100%) !important;
+  box-shadow:0 6px 24px rgba(14,42,107,.14) !important;
+}
+
+/* Content surfaces */
+.card,.stat-card,.task-card,.tasks-banner,.benefits,.fee-card,.role-btn,.qa-item,.login-wrap,.panel,.table-wrap{
+  border-color:#E2E8F2 !important;
+  box-shadow:0 7px 24px rgba(14,42,107,.055) !important;
+}
+.card:hover,.stat-card:hover,.task-card:hover{box-shadow:0 10px 30px rgba(14,42,107,.085) !important;}
+.stat-card{background:#fff !important;}
+
+/* Primary actions */
+.btn,.btn-primary{background:linear-gradient(135deg,#0B5CFF,#2563EB) !important;box-shadow:0 7px 16px rgba(11,92,255,.18) !important;}
+.btn-accent{background:linear-gradient(135deg,#F5B301,#FFC928) !important;box-shadow:0 7px 16px rgba(245,179,1,.18) !important;}
+.btn:hover{filter:brightness(1.03);transform:translateY(-1px);}
+
+/* Metric/icon treatment */
+.stat-icon,.task-icon,.qa-item .ic-wrap,.act-type{
+  background:#EEF4FF !important;color:#0B5CFF !important;
+}
+.badge.completed,.pill.unknown{background:#EEF4FF !important;color:#0B5CFF !important;}
+.progress,.progress-bar{background:#E7EEFC !important;}
+.progress-fill{background:linear-gradient(90deg,#0B5CFF,#4D8DFF) !important;}
+
+/* Mobile worker/app chrome */
+@media(max-width:820px){
+  body{background:#F4F7FC !important;}
+  header.topbar{border-radius:0 0 22px 22px !important;}
+  .brand .logo-mark{width:42px !important;height:42px !important;border-radius:10px !important;}
+  .brand .qapela-logo-img{object-fit:contain !important;}
+  main{padding-top:16px !important;}
+  .task-card,.qa-item,.tasks-banner{border-radius:15px !important;}
+  nav.bottom{box-shadow:0 -8px 24px rgba(14,42,107,.08) !important;}
+}
+
+/* Login / activation branding */
+.login-wrap{box-shadow:0 18px 50px rgba(14,42,107,.10) !important;}
+.login-wrap .logo-mark{width:92px !important;height:64px !important;border-radius:14px !important;}
+.login-wrap .logo-mark .qapela-logo-img{object-fit:contain !important;}
+
+/* Tables / forms */
+input,select,textarea{border-color:#DCE4F0 !important;background:#fff !important;}
+input:focus,select:focus,textarea:focus{border-color:#0B5CFF !important;box-shadow:0 0 0 3px rgba(11,92,255,.10) !important;outline:none !important;}
+
+/* Compact logo-only locations */
+.logo-mark .qapela-logo-img{padding:2px !important;}

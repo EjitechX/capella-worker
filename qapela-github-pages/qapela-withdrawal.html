@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Qapela — Withdraw</title>
+<style>
+  :root{
+    --primary:#0B5CFF; --secondary:#0E2A6B; --accent:#F5B301; --neutral:#F8FAFF;
+    --bg:#F8FAFF; --card:#FFFFFF; --line:#E6EAF2;
+    --text:#1B2559; --muted:#6B7590; --green:#16A34A; --danger:#DC2626;
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+    max-width:420px; margin-left:auto; margin-right:auto; min-height:100vh; padding-bottom:24px;
+  }
+  svg.ic{width:1em; height:1em; stroke:currentColor; fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; vertical-align:-0.15em;}
+
+  header.topbar{background:var(--secondary); color:#fff; padding:16px 18px 20px; border-radius:0 0 20px 20px;}
+  .topbar-row{display:flex; align-items:center; gap:10px;}
+  .back{font-size:19px; color:#fff; cursor:pointer;}
+  .brand{display:flex; align-items:center; gap:9px; font-weight:800; font-size:16px;}
+  .logo-mark{width:26px; height:26px; border-radius:7px; flex-shrink:0; background:linear-gradient(135deg,var(--primary),var(--accent)); display:flex; align-items:center; justify-content:center;}
+
+  main{padding:16px;}
+
+  .balance-card{background:linear-gradient(135deg,var(--primary),var(--secondary)); color:#fff; border-radius:16px; padding:18px; margin-bottom:16px;}
+  .balance-card .label{font-size:11.5px; opacity:.9; font-weight:600; display:flex; align-items:center; gap:6px;}
+  .balance-card .amount{font-size:26px; font-weight:800; margin-top:6px;}
+  .balance-card .note{font-size:11px; opacity:.85; margin-top:6px;}
+
+  .card{background:var(--card); border:1px solid var(--line); border-radius:14px; padding:16px; margin-bottom:14px;}
+  .card h2{font-size:14px; margin:0 0 12px; font-weight:700;}
+
+  .field{margin-bottom:13px;}
+  .field label{display:block; font-size:12px; font-weight:700; margin-bottom:6px; color:var(--text);}
+  .field select, .field input{width:100%; padding:11px 12px; border:1px solid var(--line); border-radius:9px; font-size:13.5px; color:var(--text); background:#fff;}
+  .resolve-status{font-size:12px; margin-top:6px; display:flex; align-items:center; gap:6px; min-height:16px;}
+  .resolve-status.ok{color:var(--green); font-weight:700;}
+  .resolve-status.err{color:var(--danger);}
+  .resolve-status.loading{color:var(--muted);}
+
+  .amount-input-wrap{position:relative;}
+  .amount-input-wrap span{position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--muted); font-weight:700;}
+  .amount-input-wrap input{padding-left:26px;}
+  .quick-amounts{display:flex; gap:6px; margin-top:8px;}
+  .quick-amounts button{
+    flex:1; background:var(--neutral); border:1px solid var(--line); border-radius:8px; padding:7px;
+    font-size:11.5px; font-weight:700; color:var(--secondary); cursor:pointer;
+  }
+
+  .btn{width:100%; background:var(--primary); color:#fff; border:none; padding:13px; border-radius:11px; font-weight:700; font-size:14px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;}
+  .btn:disabled{background:var(--line); color:var(--muted); cursor:default;}
+  .spinner{width:15px; height:15px; border:2px solid rgba(255,255,255,.4); border-top-color:#fff; border-radius:50%; animation:spin .7s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+
+  .msg{font-size:12.5px; margin-top:10px; padding:10px 12px; border-radius:9px;}
+  .msg.warn{background:rgba(220,38,38,.08); color:var(--danger); border:1px solid rgba(220,38,38,.2);}
+  .msg.ok{background:rgba(22,163,74,.08); color:var(--green); border:1px solid rgba(22,163,74,.2);}
+
+  .section-head{font-size:14px; font-weight:700; margin:4px 2px 10px;}
+  .wd-row{display:flex; align-items:center; justify-content:space-between; padding:11px 0; border-bottom:1px solid var(--line);}
+  .wd-row:last-child{border-bottom:none;}
+  .wd-amount{font-size:13.5px; font-weight:700;}
+  .wd-meta{font-size:11px; color:var(--muted); margin-top:2px;}
+  .badge{font-size:10px; font-weight:700; padding:3px 9px; border-radius:20px;}
+  .badge.processing{background:#FEF3C7; color:#92400E;}
+  .badge.completed{background:#DCFCE7; color:#166534;}
+  .badge.failed{background:rgba(220,38,38,.1); color:var(--danger);}
+  .empty{color:var(--muted); font-size:13px; text-align:center; padding:24px 0;}
+  .hidden{display:none;}
+</style>
+<link rel="stylesheet" href="assets/qapela-theme.css">
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute">
+<defs>
+  <symbol id="i-wallet" viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="13" rx="2"/><path d="M3 10h18"/><circle cx="16.5" cy="14" r="1"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12l5 5L20 7"/></symbol>
+</defs>
+</svg>
+
+<div id="app" class="hidden">
+  <header class="topbar">
+    <div class="topbar-row">
+      <span class="back" onclick="history.back()"><svg class="ic"><use href="#i-back"/></svg></span>
+      <div class="brand">
+        <div class="logo-mark"><img class="qapela-logo-img" src="assets/qapela-logo-icon.png" alt="Qapela mark" style="width:15px;height:15px;"></div>
+        Withdraw
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="balance-card">
+      <div class="label"><svg class="ic"><use href="#i-wallet"/></svg> Available to Withdraw</div>
+      <div class="amount" id="availBalance">₦0.00</div>
+      <div class="note">Pending: <span id="pendingBalance">₦0.00</span> · being processed</div>
+    </div>
+
+    <div class="card">
+      <h2>Bank Account</h2>
+      <div class="field">
+        <label>Bank</label>
+        <select id="bankSelect"><option value="">Loading banks…</option></select>
+      </div>
+      <div class="field">
+        <label>Account Number</label>
+        <input type="text" id="accountNumber" maxlength="10" inputmode="numeric" placeholder="0123456789">
+        <div class="resolve-status" id="resolveStatus"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Amount</h2>
+      <div class="field">
+        <div class="amount-input-wrap">
+          <span>₦</span>
+          <input type="number" id="wdAmount" placeholder="0">
+        </div>
+        <div class="quick-amounts">
+          <button onclick="setPct(0.25)">25%</button>
+          <button onclick="setPct(0.5)">50%</button>
+          <button onclick="setPct(1)">Max</button>
+        </div>
+      </div>
+      <button class="btn" id="wdBtn" onclick="submitWithdrawal()">Request Withdrawal</button>
+      <div id="wdMsg"></div>
+    </div>
+
+    <div class="section-head">Withdrawal History</div>
+    <div class="card" id="historyCard">
+      <div class="empty">Loading…</div>
+    </div>
+  </main>
+</div>
+
+<script>
+  const API_BASE = "https://capella-api-5c6c.drthankgod08.workers.dev";
+
+  let availableBalance = 0;
+  let resolvedAccountName = null;
+  let resolveTimer = null;
+
+  async function apiFetch(path, options = {}) {
+    const res = await fetch(API_BASE + path, {
+      ...options,
+      headers: { "Content-Type": "application/json", Authorization: "Bearer " + localStorage.getItem("qapela_token"), ...(options.headers || {}) },
+    });
+    const renewed = res.headers.get("X-Renewed-Token");
+    if (renewed) localStorage.setItem("qapela_token", renewed);
+    const data = await res.json().catch(() => ({}));
+    return { ok: res.ok, status: res.status, data };
+  }
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, s => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[s]));
+  }
+  function formatDate(iso) {
+    if (!iso) return "—";
+    return new Date(iso).toLocaleDateString('en-NG', { day: '2-digit', month: 'short' });
+  }
+
+  async function init() {
+    const token = localStorage.getItem("qapela_token");
+    if (!token) { window.location.href = "qapela-login.html"; return; }
+
+    const me = await apiFetch("/auth/me");
+    if (!me.ok) {
+      localStorage.removeItem("qapela_token");
+      window.location.href = "qapela-login.html";
+      return;
+    }
+
+    document.getElementById("app").classList.remove("hidden");
+    loadBanks();
+    loadWallet();
+    loadHistory();
+  }
+
+  async function loadBanks() {
+    const sel = document.getElementById("bankSelect");
+    const { ok, data } = await apiFetch("/banks");
+    if (!ok) { sel.innerHTML = '<option value="">Could not load banks</option>'; return; }
+    const banks = data.banks || [];
+    sel.innerHTML = '<option value="">Select your bank</option>' +
+      banks.map(b => `<option value="${b.code}">${escapeHtml(b.name)}</option>`).join("");
+  }
+
+  async function loadWallet() {
+    const { data } = await apiFetch("/wallet/mine");
+    availableBalance = data.availableBalance || 0;
+    document.getElementById("availBalance").textContent = "₦" + availableBalance.toLocaleString();
+    document.getElementById("pendingBalance").textContent = "₦" + (data.pendingBalance || 0).toLocaleString();
+  }
+
+  async function loadHistory() {
+    const { ok, data } = await apiFetch("/withdrawals/mine");
+    const card = document.getElementById("historyCard");
+    if (!ok) { card.innerHTML = '<div class="empty">Could not load history.</div>'; return; }
+
+    const rows = data.withdrawals || [];
+    if (rows.length === 0) { card.innerHTML = '<div class="empty">No withdrawals yet.</div>'; return; }
+
+    card.innerHTML = rows.map(w => `
+      <div class="wd-row">
+        <div>
+          <div class="wd-amount">₦${(w.amount || 0).toLocaleString()}</div>
+          <div class="wd-meta">${escapeHtml(w.bankName || '')} •••${escapeHtml((w.accountNumber || '').slice(-4))} · ${formatDate(w.requestedAt)}</div>
+        </div>
+        <span class="badge ${w.status}">${escapeHtml(w.status)}</span>
+      </div>
+    `).join("");
+  }
+
+  // Debounced account resolution — resolves the account name via Paystack
+  // so the worker can confirm it's really their account before submitting.
+  function scheduleResolve() {
+    clearTimeout(resolveTimer);
+    resolvedAccountName = null;
+    const statusEl = document.getElementById("resolveStatus");
+    const acct = document.getElementById("accountNumber").value.trim();
+    const bankCode = document.getElementById("bankSelect").value;
+
+    if (acct.length !== 10 || !bankCode) {
+      statusEl.textContent = "";
+      statusEl.className = "resolve-status";
+      return;
+    }
+    statusEl.textContent = "Resolving account…";
+    statusEl.className = "resolve-status loading";
+
+    resolveTimer = setTimeout(async () => {
+      const { ok, data } = await apiFetch("/banks/resolve", {
+        method: "POST",
+        body: JSON.stringify({ accountNumber: acct, bankCode }),
+      });
+      if (ok && data.accountName) {
+        resolvedAccountName = data.accountName;
+        statusEl.innerHTML = `<svg class="ic"><use href="#i-check"/></svg> ${escapeHtml(resolvedAccountName)}`;
+        statusEl.className = "resolve-status ok";
+      } else {
+        statusEl.textContent = data.message || "Could not verify this account — check the number and bank.";
+        statusEl.className = "resolve-status err";
+      }
+    }, 600);
+  }
+  document.getElementById("accountNumber").addEventListener("input", scheduleResolve);
+  document.getElementById("bankSelect").addEventListener("change", scheduleResolve);
+
+  window.setPct = function (pct) {
+    document.getElementById("wdAmount").value = Math.floor(availableBalance * pct);
+  };
+
+  window.submitWithdrawal = async function () {
+    const msgEl = document.getElementById("wdMsg");
+    msgEl.innerHTML = "";
+    const amount = Math.floor(Number(document.getElementById("wdAmount").value) || 0);
+    const bankCode = document.getElementById("bankSelect").value;
+    const bankSelectEl = document.getElementById("bankSelect");
+    const bankName = bankSelectEl.selectedOptions[0] ? bankSelectEl.selectedOptions[0].textContent : "";
+    const accountNumber = document.getElementById("accountNumber").value.trim();
+
+    if (!bankCode || accountNumber.length !== 10) {
+      msgEl.innerHTML = '<div class="msg warn">Select a bank and enter a valid 10-digit account number.</div>';
+      return;
+    }
+    if (!resolvedAccountName) {
+      msgEl.innerHTML = '<div class="msg warn">We need to verify this account before you can withdraw — check the number.</div>';
+      return;
+    }
+    if (amount <= 0) {
+      msgEl.innerHTML = '<div class="msg warn">Enter an amount to withdraw.</div>';
+      return;
+    }
+    if (amount > availableBalance) {
+      msgEl.innerHTML = `<div class="msg warn">You only have ₦${availableBalance.toLocaleString()} available.</div>`;
+      return;
+    }
+
+    const btn = document.getElementById("wdBtn");
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span> Processing…';
+
+    const { ok, data } = await apiFetch("/withdrawals", {
+      method: "POST",
+      body: JSON.stringify({ amount, bankCode, bankName, accountNumber, accountName: resolvedAccountName }),
+    });
+
+    if (ok && data.success) {
+      msgEl.innerHTML = `<div class="msg ok">${escapeHtml(data.message || "Withdrawal requested — funds are on the way to your bank.")}</div>`;
+      document.getElementById("wdAmount").value = "";
+      loadWallet();
+      loadHistory();
+    } else {
+      msgEl.innerHTML = `<div class="msg warn">${escapeHtml(data.message || "Could not process withdrawal.")}</div>`;
+    }
+    btn.disabled = false;
+    btn.textContent = "Request Withdrawal";
+  };
+
+  init();
+</script>
+
+</body>
+</html>

@@ -1,5 +1,5 @@
 name = "capella-api-5c6c"
-main = "capella-worker-bundle.js"
+main = "worker.js"
 compatibility_date = "2026-09-08"
 
 [[d1_databases]]
